@@ -5,7 +5,6 @@ use Swift_Mailer;
 use Swift_SmtpTransport as SmtpTransport;
 use Swift_MailTransport as MailTransport;
 use Swift_SendmailTransport as SendmailTransport;
-use Phalcon\DI;
 use Phalcon\Mvc\View\Simple as SimpleView;
 
 class MailerService extends Component
@@ -13,7 +12,6 @@ class MailerService extends Component
     /**
      * Create a new service provider instance.
      *
-     * @param  \Phalcon\DI $app
      * @return void
      */
     public function __construct()
@@ -22,6 +20,11 @@ class MailerService extends Component
         $this->registerView();
     }
 
+    /**
+     * Register the Mailer instance
+     *
+     * @return Mailer $mailer
+     */
     public function mailer()
     {
         // Once we have create the mailer instance, we will set a container instance

@@ -29,7 +29,7 @@ class Message {
      *
      * @param  string  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function from($address, $name = null)
     {
@@ -43,7 +43,7 @@ class Message {
      *
      * @param  string  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function sender($address, $name = null)
     {
@@ -56,7 +56,7 @@ class Message {
      * Set the "return path" of the message.
      *
      * @param  string  $address
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function returnPath($address)
     {
@@ -70,7 +70,7 @@ class Message {
      *
      * @param  string|array  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function to($address, $name = null)
     {
@@ -82,7 +82,7 @@ class Message {
      *
      * @param  string  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function cc($address, $name = null)
     {
@@ -94,7 +94,7 @@ class Message {
      *
      * @param  string  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function bcc($address, $name = null)
     {
@@ -106,7 +106,7 @@ class Message {
      *
      * @param  string  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function replyTo($address, $name = null)
     {
@@ -118,7 +118,7 @@ class Message {
      *
      * @param  string|array  $address
      * @param  string  $name
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     protected function addAddresses($address, $name, $type)
     {
@@ -138,7 +138,7 @@ class Message {
      * Set the subject of the message.
      *
      * @param  string  $subject
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function subject($subject)
     {
@@ -151,7 +151,7 @@ class Message {
      * Set the message priority level.
      *
      * @param  int  $level
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function priority($level)
     {
@@ -165,7 +165,7 @@ class Message {
      *
      * @param  string  $file
      * @param  array   $options
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function attach($file, array $options = array())
     {
@@ -191,7 +191,7 @@ class Message {
      * @param  string  $data
      * @param  string  $name
      * @param  array   $options
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     public function attachData($data, $name, array $options = array())
     {
@@ -243,7 +243,7 @@ class Message {
      *
      * @param  Swift_Attachment  $attachment
      * @param  array  $options
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     protected function prepAttachment($attachment, $options = array())
     {

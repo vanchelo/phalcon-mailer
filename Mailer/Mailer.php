@@ -98,7 +98,7 @@ class Mailer {
     /**
      * Add the content to a given message.
      *
-     * @param  \Blog\Mail\Message  $message
+     * @param  Message  $message
      * @param  string  $view
      * @param  string  $plain
      * @param  array   $data
@@ -163,7 +163,7 @@ class Mailer {
      * Call the provided message builder.
      *
      * @param  Closure|string  $callback
-     * @param  \Blog\Mail\Message  $message
+     * @param  Message  $message
      * @return void
      */
     protected function callMessageBuilder($callback, $message)
@@ -179,7 +179,7 @@ class Mailer {
     /**
      * Create a new message instance.
      *
-     * @return \Blog\Mail\Message
+     * @return Message
      */
     protected function createMessage()
     {

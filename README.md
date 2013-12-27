@@ -1,5 +1,6 @@
 phalcon-mailer
 ==============
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vanchelo/phalcon-mailer/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Сервис для отправки почты для Phalcon используя Swift Mailer.
 

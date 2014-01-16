@@ -1,0 +1,20 @@
+{
+    "name": "vanchelo/phalcon-mailer",
+    "type": "library",
+    "description": "Phalcon Mailer Service",
+    "keywords": ["mail","mailer","phalcon"],
+    "homepage": "https://github.com/vanchelo/phalcon-mailer",
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Brezhnev Ivan"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "swiftmailer/swiftmailer": "5.1.*@dev"
+    },
+    "autoload": {
+        "psr-4": { "Vanchelo\\Mailer": "src/" }
+    }
+}

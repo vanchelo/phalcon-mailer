@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Vanchelo\\Mailer": "src/"
+            "Vanchelo\\Mailer\\": "src/"
         }
     }
 }

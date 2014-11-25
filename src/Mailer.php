@@ -47,11 +47,13 @@ class Mailer
      *
      * @param  \Phalcon\Mvc\View\Simple $view
      * @param  Swift_Mailer $swift
+     * @param  \Phalcon\Queue\Beanstalk $queue
      */
-    public function __construct(View $view, Swift_Mailer $swift)
+    public function __construct(View $view, Swift_Mailer $swift, Beanstalk $queue = null)
     {
         $this->view = $view;
         $this->swift = $swift;
+        $this->queue = $queue;
     }
 
     /**

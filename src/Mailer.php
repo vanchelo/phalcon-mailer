@@ -4,9 +4,11 @@ use Closure;
 use Swift_Mailer;
 use Swift_Message;
 use Phalcon\Mvc\View\Simple as View;
+use Jeremeamia\SuperClosure\SerializableClosure;
+use Phalcon\Queue\Beanstalk;
 
-class Mailer {
-
+class Mailer
+{
     /**
      * The view environment instance.
      *
@@ -29,11 +31,22 @@ class Mailer {
     protected $from;
 
     /**
+     * Array of failed recipients.
+     *
+     * @var array
+     */
+    protected $failedRecipients = [];
+
+    /**
+     * @var \Phalcon\Queue\Beanstalk
+     */
+    protected $queue;
+
+    /**
      * Create a new Mailer instance.
      *
-     * @param  \Phalcon\Mvc\View\Simple $views
-     * @param  Swift_Mailer  $swift
-     * @return void
+     * @param  \Phalcon\Mvc\View\Simple $view
+     * @param  Swift_Mailer $swift
      */
     public function __construct(View $view, Swift_Mailer $swift)
     {
@@ -44,8 +57,9 @@ class Mailer {
     /**
      * Set the global from address and name.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param  string $address
+     * @param  string $name
+     *
      * @return void
      */
     public function alwaysFrom($address, $name = null)
@@ -56,22 +70,24 @@ class Mailer {
     /**
      * Send a new message when only a plain part.
      *
-     * @param  string  $view
-     * @param  array   $data
-     * @param  mixed  $callback
+     * @param  string $view
+     * @param  array $data
+     * @param  mixed $callback
+     *
      * @return integer
      */
     public function plain($view, array $data, $callback)
     {
-        return $this->send(array('text' => $view), $data, $callback);
+        return $this->send(['text' => $view], $data, $callback);
     }
 
     /**
      * Send a new message using a view.
      *
-     * @param  string|array  $view
-     * @param  array  $data
-     * @param  Closure|string  $callback
+     * @param  string|array $view
+     * @param  array $data
+     * @param  Closure|string $callback
+     *
      * @return integer
      */
     public function send($view, array $data, $callback)
@@ -98,11 +114,10 @@ class Mailer {
     /**
      * Add the content to a given message.
      *
-     * @param  Message  $message
-     * @param  string  $view
-     * @param  string  $plain
-     * @param  array   $data
-     * @return void
+     * @param  Message $message
+     * @param  string $view
+     * @param  string $plain
+     * @param  array $data
      */
     protected function addContent($message, $view, $plain, $data)
     {
@@ -120,17 +135,18 @@ class Mailer {
     /**
      * Parse the given view name or array.
      *
-     * @param  string|array  $view
+     * @param  string|array $view
+     *
      * @return array
      */
     protected function parseView($view)
     {
-        if (is_string($view)) return array($view, null);
+        if (is_string($view)) return [$view, null];
 
         // If the given view is an array with numeric keys, we will just assume that
         // both a "pretty" and "plain" view were provided, so we will return this
         // array as is, since must should contain both views with numeric keys.
-        if (is_array($view) and isset($view[0]))
+        if (is_array($view) && isset($view[0]))
         {
             return $view;
         }
@@ -140,9 +156,9 @@ class Mailer {
         // named keys instead, allowing the developers to use one or the other.
         elseif (is_array($view))
         {
-            return array(
+            return [
                 array_get($view, 'html'), array_get($view, 'text')
-            );
+            ];
         }
 
         throw new \InvalidArgumentException("Invalid view.");
@@ -151,7 +167,8 @@ class Mailer {
     /**
      * Send a Swift Message instance.
      *
-     * @param  Swift_Message  $message
+     * @param  Swift_Message $message
+     *
      * @return integer
      */
     protected function sendSwiftMessage($message)
@@ -162,9 +179,10 @@ class Mailer {
     /**
      * Call the provided message builder.
      *
-     * @param  Closure|string  $callback
-     * @param  Message  $message
-     * @return void
+     * @param $callback
+     * @param $message
+     *
+     * @return mixed
      */
     protected function callMessageBuilder($callback, $message)
     {
@@ -199,13 +217,14 @@ class Mailer {
     /**
      * Render the given view.
      *
-     * @param  string  $view
-     * @param  array   $data
+     * @param  string $view
+     * @param  array $data
+     *
      * @return string
      */
-    protected function getView($template, $data)
+    protected function getView($view, $data)
     {
-        return $this->view->render($template, $data);
+        return $this->view->render($view, $data);
     }
 
     /**
@@ -231,7 +250,8 @@ class Mailer {
     /**
      * Set the Swift Mailer instance.
      *
-     * @param  Swift_Mailer  $swift
+     * @param  Swift_Mailer $swift
+     *
      * @return void
      */
     public function setSwiftMailer($swift)
@@ -239,29 +259,81 @@ class Mailer {
         $this->swift = $swift;
     }
 
-}
-
-
-function array_get($array, $key, $default = null)
-{
-    if (is_null($key)) return $array;
-
-    if (isset($array[$key])) return $array[$key];
-
-    foreach (explode('.', $key) as $segment)
+    /**
+     * Build the callable for a queued e-mail job.
+     *
+     * @param  mixed $callback
+     *
+     * @return mixed
+     */
+    protected function buildQueueCallable($callback)
     {
-        if ( ! is_array($array) or ! array_key_exists($segment, $array))
-        {
-            return value($default);
-        }
+        if ( ! $callback instanceof Closure) return $callback;
 
-        $array = $array[$segment];
+        return serialize(new SerializableClosure($callback));
     }
 
-    return $array;
-}
+    /**
+     * Handle a queued e-mail message job.
+     *
+     * @param  \Phalcon\Queue\Beanstalk\Job $job
+     * @param  array $data
+     */
+    public function handleQueuedMessage($job, $data)
+    {
+        $this->send($data['view'], $data['data'], $this->getQueuedCallable($data));
 
-function value($value)
-{
-    return $value instanceof Closure ? $value() : $value;
+        $job->delete();
+    }
+
+    /**
+     * Get the true callable for a queued e-mail message.
+     *
+     * @param  array $data
+     *
+     * @return mixed
+     */
+    protected function getQueuedCallable(array $data)
+    {
+        if (str_contains($data['callback'], 'SerializableClosure'))
+        {
+            return with(unserialize($data['callback']))->getClosure();
+        }
+
+        return $data['callback'];
+    }
+
+    /**
+     * Queue a new e-mail message for sending.
+     *
+     * @param  string|array $view
+     * @param  array $data
+     * @param  \Closure|string $callback
+     * @return mixed
+     */
+    public function queue($view, array $data, $callback)
+    {
+        $callback = $this->buildQueueCallable($callback);
+
+        $this->queue->choose('mailer');
+
+        return $this->queue->put([
+            'job' => 'mailer:handleQueuedMessage',
+            'data' => [
+                'view' => $view,
+                'data' => $data,
+                'callback' => $callback
+            ],
+        ]);
+    }
+
+    /**
+     * Get the array of failed recipients.
+     *
+     * @return array
+     */
+    public function failures()
+    {
+        return $this->failedRecipients;
+    }
 }

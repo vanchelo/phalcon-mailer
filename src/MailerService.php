@@ -11,8 +11,6 @@ class MailerService extends Component
 {
     /**
      * Create a new service provider instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -34,7 +32,7 @@ class MailerService extends Component
 
         $from = $this->di['config']->mail->from->toArray();
 
-        if (is_array($from) and isset($from['address']))
+        if (is_array($from) && isset($from['address']))
         {
             $mailer->alwaysFrom($from['address'], $from['name']);
         }
@@ -56,7 +54,7 @@ class MailerService extends Component
         // Once we have the transporter registered, we will register the actual Swift
         // mailer instance, passing in the transport instances, which allows us to
         // override this transporter instances during app start-up if necessary.
-        $this->di['swift.mailer'] = function()
+        $this->di['swift.mailer'] = function ()
         {
             return new Swift_Mailer($this->di['swift.transport']);
         };
@@ -65,7 +63,8 @@ class MailerService extends Component
     /**
      * Register the Swift Transport instance.
      *
-     * @param  array  $config
+     * @param  array $config
+     *
      * @return void
      */
     protected function registerSwiftTransport($config)
@@ -89,12 +88,13 @@ class MailerService extends Component
     /**
      * Register the SMTP Swift Transport instance.
      *
-     * @param  array  $config
+     * @param  array $config
+     *
      * @return void
      */
     protected function registerSmtpTransport($config)
     {
-        $this->di['swift.transport'] = function() use ($config)
+        $this->di['swift.transport'] = function () use ($config)
         {
             extract($config);
 
@@ -125,12 +125,13 @@ class MailerService extends Component
     /**
      * Register the Sendmail Swift Transport instance.
      *
-     * @param  array  $config
+     * @param  array $config
+     *
      * @return void
      */
     protected function registerSendmailTransport($config)
     {
-        $this->di['swift.transport'] = function() use ($config)
+        $this->di['swift.transport'] = function () use ($config)
         {
             return SendmailTransport::newInstance($config['sendmail']);
         };
@@ -139,12 +140,13 @@ class MailerService extends Component
     /**
      * Register the Mail Swift Transport instance.
      *
-     * @param  array  $config
+     * @param  array $config
+     *
      * @return void
      */
     protected function registerMailTransport($config)
     {
-        $this->di['swift.transport'] = function()
+        $this->di['swift.transport'] = function ()
         {
             return MailTransport::newInstance();
         };
@@ -152,13 +154,11 @@ class MailerService extends Component
 
     /**
      * Register the Simple View instance
-     *
-     * @param  array  $config
-     * @return void
      */
     protected function registerView()
     {
-        $this->di['mailer.view'] = function() {
+        $this->di['mailer.view'] = function ()
+        {
             $view = new SimpleView;
 
             $view->setViewsDir($this->config->application->viewsDir);
@@ -166,5 +166,4 @@ class MailerService extends Component
             return $view;
         };
     }
-
 }

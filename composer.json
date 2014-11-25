@@ -12,11 +12,15 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "swiftmailer/swiftmailer": "5.1.*@dev"
+        "swiftmailer/swiftmailer": "5.1.*@dev",
+        "jeremeamia/superclosure": "~1.0.1"
     },
     "autoload": {
         "psr-4": {
             "Vanchelo\\Mailer\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     }
 }

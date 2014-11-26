@@ -5,9 +5,10 @@ use Swift_Mailer;
 use Swift_Message;
 use Phalcon\Mvc\View\Simple as View;
 use Jeremeamia\SuperClosure\SerializableClosure;
+use Phalcon\DI\InjectionAwareInterface;
 use Phalcon\Queue\Beanstalk;
 
-class Mailer
+class Mailer implements InjectionAwareInterface
 {
     /**
      * The view environment instance.
@@ -43,17 +44,20 @@ class Mailer
     protected $queue;
 
     /**
+     * @var \Phalcon\DiInterface
+     */
+    protected $di;
+
+    /**
      * Create a new Mailer instance.
      *
      * @param  \Phalcon\Mvc\View\Simple $view
      * @param  Swift_Mailer $swift
-     * @param  \Phalcon\Queue\Beanstalk $queue
      */
-    public function __construct(View $view, Swift_Mailer $swift, Beanstalk $queue = null)
+    public function __construct(View $view, Swift_Mailer $swift)
     {
         $this->view = $view;
         $this->swift = $swift;
-        $this->queue = $queue;
     }
 
     /**
@@ -319,14 +323,14 @@ class Mailer
 
         $this->queue->choose('mailer');
 
-        return $this->queue->put([
+        return $this->queue->put(json_encode([
             'job' => 'mailer:handleQueuedMessage',
             'data' => [
                 'view' => $view,
                 'data' => $data,
                 'callback' => $callback
             ],
-        ]);
+        ]));
     }
 
     /**
@@ -337,5 +341,38 @@ class Mailer
     public function failures()
     {
         return $this->failedRecipients;
+    }
+
+    /**
+     * Set the Beanstalk queue instance.
+     *
+     * @param  \Phalcon\Queue\Beanstalk  $queue
+     * @return $this
+     */
+    public function setQueue(Beanstalk $queue)
+    {
+        $this->queue = $queue;
+
+        return $this;
+    }
+
+    /**
+     * Sets the dependency injector
+     *
+     * @param \Phalcon\DiInterface $dependencyInjector
+     */
+    public function setDI($dependencyInjector)
+    {
+        $this->di = $dependencyInjector;
+    }
+
+    /**
+     * Returns the internal dependency injector
+     *
+     * @return \Phalcon\DiInterface
+     */
+    public function getDI()
+    {
+        return $this->di;
     }
 }

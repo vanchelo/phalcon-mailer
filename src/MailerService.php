@@ -28,7 +28,9 @@ class MailerService extends Component
         // Once we have create the mailer instance, we will set a container instance
         // on the mailer. This allows us to resolve mailer classes via containers
         // for maximum testability on said classes instead of passing Closures.
-        $mailer = new Mailer($this->di['viewSimple'], $this->di['swift.mailer'], $this->di['queue']);
+        $mailer = new Mailer($this->di['mailer.view'], $this->di['swift.mailer']);
+
+        $this->setMailerDependencies($mailer);
 
         $from = $this->di['config']->mail->from->toArray();
 
@@ -140,11 +142,9 @@ class MailerService extends Component
     /**
      * Register the Mail Swift Transport instance.
      *
-     * @param  array $config
-     *
      * @return void
      */
-    protected function registerMailTransport($config)
+    protected function registerMailTransport()
     {
         $this->di['swift.transport'] = function ()
         {
@@ -165,5 +165,22 @@ class MailerService extends Component
 
             return $view;
         };
+    }
+
+    /**
+     * Set a few dependencies on the mailer instance.
+     *
+     * @param  Mailer $mailer
+     *
+     * @return void
+     */
+    protected function setMailerDependencies($mailer)
+    {
+        $mailer->setDI($this->di);
+
+        if ($this->di->has('queue'))
+        {
+            $mailer->setQueue($this->di['queue']);
+        }
     }
 }

@@ -157,20 +157,30 @@ class MailerService extends Component
      */
     protected function registerView()
     {
-        $this->di['mailer.view'] = function ()
+        if ($this->di->has('view'))
         {
-            $view = new SimpleView;
+            $this->di['mailer.view'] = function ()
+            {
+                return $this->di->get('view');
+            };
+        }
+        else
+        {
+            $this->di['mailer.view'] = function ()
+            {
+                $view = new SimpleView;
 
-            $view->setViewsDir($this->config->application->viewsDir);
+                $view->setViewsDir($this->config->application->viewsDir);
 
-            return $view;
-        };
+                return $view;
+            };
+        }
     }
 
     /**
      * Set a few dependencies on the mailer instance.
      *
-     * @param  Mailer $mailer
+     * @param Mailer $mailer
      *
      * @return void
      */

@@ -4,8 +4,8 @@ use Swift_Image;
 use Swift_Message;
 use Swift_Attachment;
 
-class Message {
-
+class Message
+{
     /**
      * The Swift Message instance.
      *
@@ -16,8 +16,7 @@ class Message {
     /**
      * Create a new message instance.
      *
-     * @param  Swift_Message  $swift
-     * @return void
+     * @param  Swift_Message $swift
      */
     public function __construct($swift)
     {
@@ -27,8 +26,9 @@ class Message {
     /**
      * Add a "from" address to the message.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param  string $address
+     * @param  string $name
+     *
      * @return Message
      */
     public function from($address, $name = null)
@@ -41,8 +41,9 @@ class Message {
     /**
      * Set the "sender" of the message.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param string $address
+     * @param string $name
+     *
      * @return Message
      */
     public function sender($address, $name = null)
@@ -55,7 +56,8 @@ class Message {
     /**
      * Set the "return path" of the message.
      *
-     * @param  string  $address
+     * @param string $address
+     *
      * @return Message
      */
     public function returnPath($address)
@@ -68,8 +70,9 @@ class Message {
     /**
      * Add a recipient to the message.
      *
-     * @param  string|array  $address
-     * @param  string  $name
+     * @param  string|array $address
+     * @param  string $name
+     *
      * @return Message
      */
     public function to($address, $name = null)
@@ -80,8 +83,9 @@ class Message {
     /**
      * Add a carbon copy to the message.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param string $address
+     * @param string $name
+     *
      * @return Message
      */
     public function cc($address, $name = null)
@@ -92,8 +96,9 @@ class Message {
     /**
      * Add a blind carbon copy to the message.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param string $address
+     * @param string $name
+     *
      * @return Message
      */
     public function bcc($address, $name = null)
@@ -104,8 +109,9 @@ class Message {
     /**
      * Add a reply to address to the message.
      *
-     * @param  string  $address
-     * @param  string  $name
+     * @param string $address
+     * @param string $name
+     *
      * @return Message
      */
     public function replyTo($address, $name = null)
@@ -116,8 +122,9 @@ class Message {
     /**
      * Add a recipient to the message.
      *
-     * @param  string|array  $address
-     * @param  string  $name
+     * @param string|array $address
+     * @param string $name
+     *
      * @return Message
      */
     protected function addAddresses($address, $name, $type)
@@ -137,7 +144,8 @@ class Message {
     /**
      * Set the subject of the message.
      *
-     * @param  string  $subject
+     * @param string $subject
+     *
      * @return Message
      */
     public function subject($subject)
@@ -150,7 +158,8 @@ class Message {
     /**
      * Set the message priority level.
      *
-     * @param  int  $level
+     * @param int $level
+     *
      * @return Message
      */
     public function priority($level)
@@ -163,11 +172,12 @@ class Message {
     /**
      * Attach a file to the message.
      *
-     * @param  string  $file
-     * @param  array   $options
+     * @param string $file
+     * @param array $options
+     *
      * @return Message
      */
-    public function attach($file, array $options = array())
+    public function attach($file, array $options = [])
     {
         $attachment = $this->createAttachmentFromPath($file);
 
@@ -177,7 +187,8 @@ class Message {
     /**
      * Create a Swift Attachment instance.
      *
-     * @param  string  $file
+     * @param string $file
+     *
      * @return Swift_Attachment
      */
     protected function createAttachmentFromPath($file)
@@ -188,12 +199,13 @@ class Message {
     /**
      * Attach in-memory data as an attachment.
      *
-     * @param  string  $data
-     * @param  string  $name
-     * @param  array   $options
+     * @param string $data
+     * @param string $name
+     * @param array $options
+     *
      * @return Message
      */
-    public function attachData($data, $name, array $options = array())
+    public function attachData($data, $name, array $options = [])
     {
         $attachment = $this->createAttachmentFromData($data, $name);
 
@@ -203,8 +215,9 @@ class Message {
     /**
      * Create a Swift Attachment instance from data.
      *
-     * @param  string  $data
-     * @param  string  $name
+     * @param string $data
+     * @param string $name
+     *
      * @return Swift_Attachment
      */
     protected function createAttachmentFromData($data, $name)
@@ -215,7 +228,8 @@ class Message {
     /**
      * Embed a file in the message and get the CID.
      *
-     * @param  string  $file
+     * @param string $file
+     *
      * @return string
      */
     public function embed($file)
@@ -226,9 +240,10 @@ class Message {
     /**
      * Embed in-memory data in the message and get the CID.
      *
-     * @param  string  $data
-     * @param  string  $name
-     * @param  string  $contentType
+     * @param string $data
+     * @param string $name
+     * @param string $contentType
+     *
      * @return string
      */
     public function embedData($data, $name, $contentType = null)
@@ -241,11 +256,12 @@ class Message {
     /**
      * Prepare and attach the given attachment.
      *
-     * @param  Swift_Attachment  $attachment
-     * @param  array  $options
+     * @param Swift_Attachment $attachment
+     * @param array $options
+     *
      * @return Message
      */
-    protected function prepAttachment($attachment, $options = array())
+    protected function prepAttachment($attachment, $options = [])
     {
         // First we will check for a MIME type on the message, which instructs the
         // mail client on what type of attachment the file is so that it may be
@@ -281,15 +297,15 @@ class Message {
     /**
      * Dynamically pass missing methods to the Swift instance.
      *
-     * @param  string  $method
-     * @param  array   $parameters
+     * @param string $method
+     * @param array $parameters
+     *
      * @return mixed
      */
     public function __call($method, $parameters)
     {
-        $callable = array($this->swift, $method);
+        $callable = [$this->swift, $method];
 
         return call_user_func_array($callable, $parameters);
     }
-
 }

@@ -3,7 +3,6 @@
 use Closure;
 use Swift_Mailer;
 use Swift_Message;
-use Phalcon\Mvc\View\Simple as View;
 use Jeremeamia\SuperClosure\SerializableClosure;
 use Phalcon\DI\InjectionAwareInterface;
 use Phalcon\Queue\Beanstalk;
@@ -11,34 +10,36 @@ use Phalcon\Queue\Beanstalk;
 class Mailer implements InjectionAwareInterface
 {
     /**
-     * The view environment instance.
+     * The view environment instance
      *
-     * @var \Phalcon\Mvc\View\Simple
+     * @var \Phalcon\Mvc\View
      */
     protected $view;
 
     /**
-     * The Swift Mailer instance.
+     * The Swift Mailer instance
      *
      * @var Swift_Mailer
      */
     protected $swift;
 
     /**
-     * The global from address and name.
+     * The global from address and name
      *
      * @var array
      */
     protected $from;
 
     /**
-     * Array of failed recipients.
+     * Array of failed recipients
      *
      * @var array
      */
     protected $failedRecipients = [];
 
     /**
+     * The Benastalk queue instance
+     *
      * @var \Phalcon\Queue\Beanstalk
      */
     protected $queue;
@@ -49,24 +50,22 @@ class Mailer implements InjectionAwareInterface
     protected $di;
 
     /**
-     * Create a new Mailer instance.
+     * Create a new Mailer instance
      *
-     * @param  \Phalcon\Mvc\View\Simple $view
-     * @param  Swift_Mailer $swift
+     * @param $view
+     * @param Swift_Mailer $swift
      */
-    public function __construct(View $view, Swift_Mailer $swift)
+    public function __construct($view, Swift_Mailer $swift)
     {
         $this->view = $view;
         $this->swift = $swift;
     }
 
     /**
-     * Set the global from address and name.
+     * Set the global from address and name
      *
-     * @param  string $address
-     * @param  string $name
-     *
-     * @return void
+     * @param string $address
+     * @param string $name
      */
     public function alwaysFrom($address, $name = null)
     {
@@ -74,13 +73,13 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Send a new message when only a plain part.
+     * Send a new message when only a plain part
      *
-     * @param  string $view
-     * @param  array $data
-     * @param  mixed $callback
+     * @param string $view
+     * @param array $data
+     * @param mixed $callback
      *
-     * @return integer
+     * @return int
      */
     public function plain($view, array $data, $callback)
     {
@@ -88,13 +87,13 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Send a new message using a view.
+     * Send a new message using a view
      *
-     * @param  string|array $view
-     * @param  array $data
-     * @param  Closure|string $callback
+     * @param string|array $view
+     * @param array $data
+     * @param Closure|string $callback
      *
-     * @return integer
+     * @return int
      */
     public function send($view, array $data, $callback)
     {
@@ -118,30 +117,30 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Add the content to a given message.
+     * Add the content to a given message
      *
-     * @param  Message $message
-     * @param  string $view
-     * @param  string $plain
-     * @param  array $data
+     * @param Message $message
+     * @param string $view
+     * @param string $plain
+     * @param array $data
      */
     protected function addContent($message, $view, $plain, $data)
     {
         if (isset($view))
         {
-            $message->setBody($this->getView($view, $data), 'text/html');
+            $message->setBody($this->render($view, $data), 'text/html');
         }
 
         if (isset($plain))
         {
-            $message->addPart($this->getView($plain, $data), 'text/plain');
+            $message->addPart($this->render($plain, $data), 'text/plain');
         }
     }
 
     /**
-     * Parse the given view name or array.
+     * Parse the given view name or array
      *
-     * @param  string|array $view
+     * @param string|array $view
      *
      * @return array
      */
@@ -163,7 +162,8 @@ class Mailer implements InjectionAwareInterface
         elseif (is_array($view))
         {
             return [
-                array_get($view, 'html'), array_get($view, 'text')
+                array_get($view, 'html'),
+                array_get($view, 'text')
             ];
         }
 
@@ -171,24 +171,25 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Send a Swift Message instance.
+     * Send a Swift Message instance
      *
-     * @param  Swift_Message $message
+     * @param Swift_Message $message
      *
-     * @return integer
+     * @return int
      */
-    protected function sendSwiftMessage($message)
+    public function sendSwiftMessage($message)
     {
         return $this->swift->send($message);
     }
 
     /**
-     * Call the provided message builder.
+     * Call the provided message builder
      *
      * @param $callback
      * @param $message
      *
      * @return mixed
+     * @throws \InvalidArgumentException
      */
     protected function callMessageBuilder($callback, $message)
     {
@@ -201,7 +202,7 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Create a new message instance.
+     * Create a new message instance
      *
      * @return Message
      */
@@ -221,20 +222,24 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Render the given view.
+     * Render the given view
      *
-     * @param  string $view
-     * @param  array $data
+     * @param string $view
+     * @param array $data
      *
      * @return string
      */
-    protected function getView($view, $data)
+    protected function render($view, $data)
     {
-        return $this->view->render($view, $data);
+        ob_start();
+        $this->view->partial($view, $data);
+        $content = ob_get_clean();
+
+        return $content;
     }
 
     /**
-     * Get the view environment instance.
+     * Get the view environment instance
      *
      * @return \Phalcon\Mvc\View
      */
@@ -244,7 +249,7 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Get the Swift Mailer instance.
+     * Get the Swift Mailer instance
      *
      * @return Swift_Mailer
      */
@@ -254,11 +259,9 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Set the Swift Mailer instance.
+     * Set the Swift Mailer instance
      *
-     * @param  Swift_Mailer $swift
-     *
-     * @return void
+     * @param Swift_Mailer $swift
      */
     public function setSwiftMailer($swift)
     {
@@ -266,9 +269,9 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Build the callable for a queued e-mail job.
+     * Build the callable for a queued e-mail job
      *
-     * @param  mixed $callback
+     * @param mixed $callback
      *
      * @return mixed
      */
@@ -280,10 +283,10 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Handle a queued e-mail message job.
+     * Handle a queued e-mail message job
      *
-     * @param  \Phalcon\Queue\Beanstalk\Job $job
-     * @param  array $data
+     * @param \Phalcon\Queue\Beanstalk\Job $job
+     * @param array $data
      */
     public function handleQueuedMessage($job, $data)
     {
@@ -293,9 +296,9 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Get the true callable for a queued e-mail message.
+     * Get the true callable for a queued e-mail message
      *
-     * @param  array $data
+     * @param array $data
      *
      * @return mixed
      */
@@ -310,11 +313,12 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Queue a new e-mail message for sending.
+     * Queue a new e-mail message for sending
      *
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
+     * @param string|array $view
+     * @param array $data
+     * @param \Closure|string $callback
+     *
      * @return mixed
      */
     public function queue($view, array $data, $callback)
@@ -334,7 +338,7 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Get the array of failed recipients.
+     * Get the array of failed recipients
      *
      * @return array
      */
@@ -344,10 +348,11 @@ class Mailer implements InjectionAwareInterface
     }
 
     /**
-     * Set the Beanstalk queue instance.
+     * Set the Beanstalk queue instance
      *
-     * @param  \Phalcon\Queue\Beanstalk  $queue
-     * @return $this
+     * @param \Phalcon\Queue\Beanstalk  $queue
+     *
+     * @return self
      */
     public function setQueue(Beanstalk $queue)
     {

@@ -4,9 +4,22 @@ phalcon-mailer
 
 Сервис для отправки почты для Phalcon используя Swift Mailer.
 
-Рекомендую устанавливать Swift Mailer через composer, тогда вам не придется думать о require
-
 Код заимствован из Laravel 4 и адаптирован под Phalcon.
+
+##Установка с помощью `composer`:
+Добавить в файл `composer.json` в секцию `require`:
+```
+"vanchelo/phalcon-mailer": "dev-master"
+```
+Должно получится примерно так:
+```json
+{
+  "require": {
+    "vanchelo/phalcon-console": "dev-master"
+  }
+}
+```
+В терминале выполнить команду `composer update`
 
 Инициализация сервиса
 ---------

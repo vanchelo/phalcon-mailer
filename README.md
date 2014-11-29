@@ -1,14 +1,13 @@
-phalcon-mailer
+Phalcon Mailer
 ==============
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/vanchelo/phalcon-mailer/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
-Сервис для отправки почты для Phalcon используя Swift Mailer.
+Удобная библиотека для отправки Вашей почты в [Phalcon](http://phalconphp.com/).
 
 Код заимствован из Laravel 4 и адаптирован под Phalcon.
 
 ##Установка
 C помощью `composer`:
-Добавить в файл `composer.json` в секцию `require`:
+
+Добавить в файл `composer.json` в секцию `require` следующую строку:
 ```
 "vanchelo/phalcon-mailer": "dev-master"
 ```
@@ -20,7 +19,10 @@ C помощью `composer`:
   }
 }
 ```
-В терминале выполнить команду `composer update`
+После этого выполните в терминале команду:
+```bash
+composer update
+```
 
 Инициализация сервиса
 ---------

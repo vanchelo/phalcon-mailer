@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "swiftmailer/swiftmailer": "~5.1",
+        "swiftmailer/swiftmailer": "~5.3",
         "jeremeamia/superclosure": "~1.0.1"
     },
     "autoload": {

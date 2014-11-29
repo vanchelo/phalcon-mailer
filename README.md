@@ -6,7 +6,8 @@ phalcon-mailer
 
 Код заимствован из Laravel 4 и адаптирован под Phalcon.
 
-##Установка с помощью `composer`:
+##Установка
+C помощью `composer`:
 Добавить в файл `composer.json` в секцию `require`:
 ```
 "vanchelo/phalcon-mailer": "dev-master"

@@ -1,9 +1,20 @@
-<?php namespace Vanchelo\Mailer;
+<?php
+
+namespace Vanchelo\Mailer;
 
 use Swift_Image;
 use Swift_Message;
 use Swift_Attachment;
 
+/**
+ * Class Message
+ *
+ * @package Vanchelo\Mailer
+ *
+ * @method Swift_Message setBody($body, $contentType = null, $charset = null)
+ * @method Swift_Message setFrom($addresses, $name = null)
+ * @method Swift_Message addPart($body, $contentType = null, $charset = null)
+ */
 class Message
 {
     /**
@@ -16,9 +27,9 @@ class Message
     /**
      * Create a new message instance.
      *
-     * @param  Swift_Message $swift
+     * @param Swift_Message $swift
      */
-    public function __construct($swift)
+    public function __construct(Swift_Message $swift)
     {
         $this->swift = $swift;
     }
@@ -26,8 +37,8 @@ class Message
     /**
      * Add a "from" address to the message.
      *
-     * @param  string $address
-     * @param  string $name
+     * @param string $address
+     * @param string $name
      *
      * @return Message
      */
@@ -70,8 +81,8 @@ class Message
     /**
      * Add a recipient to the message.
      *
-     * @param  string|array $address
-     * @param  string $name
+     * @param string|array $address
+     * @param string       $name
      *
      * @return Message
      */
@@ -123,18 +134,16 @@ class Message
      * Add a recipient to the message.
      *
      * @param string|array $address
-     * @param string $name
+     * @param string       $name
+     * @param string       $type
      *
      * @return Message
      */
     protected function addAddresses($address, $name, $type)
     {
-        if (is_array($address))
-        {
+        if (is_array($address)) {
             $this->swift->{"set{$type}"}($address, $name);
-        }
-        else
-        {
+        } else {
             $this->swift->{"add{$type}"}($address, $name);
         }
 
@@ -173,7 +182,7 @@ class Message
      * Attach a file to the message.
      *
      * @param string $file
-     * @param array $options
+     * @param array  $options
      *
      * @return Message
      */
@@ -201,7 +210,7 @@ class Message
      *
      * @param string $data
      * @param string $name
-     * @param array $options
+     * @param array  $options
      *
      * @return Message
      */
@@ -257,25 +266,23 @@ class Message
      * Prepare and attach the given attachment.
      *
      * @param Swift_Attachment $attachment
-     * @param array $options
+     * @param array            $options
      *
      * @return Message
      */
-    protected function prepAttachment($attachment, $options = [])
+    protected function prepAttachment(Swift_Attachment $attachment, array $options = [])
     {
         // First we will check for a MIME type on the message, which instructs the
         // mail client on what type of attachment the file is so that it may be
         // downloaded correctly by the user. The MIME option is not required.
-        if (isset($options['mime']))
-        {
+        if (isset($options['mime'])) {
             $attachment->setContentType($options['mime']);
         }
 
         // If an alternative name was given as an option, we will set that on this
         // attachment so that it will be downloaded with the desired names from
         // the developer, otherwise the default file names will get assigned.
-        if (isset($options['as']))
-        {
+        if (isset($options['as'])) {
             $attachment->setFilename($options['as']);
         }
 
@@ -298,14 +305,12 @@ class Message
      * Dynamically pass missing methods to the Swift instance.
      *
      * @param string $method
-     * @param array $parameters
+     * @param array  $parameters
      *
      * @return mixed
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
-        $callable = [$this->swift, $method];
-
-        return call_user_func_array($callable, $parameters);
+        return call_user_func_array([$this->swift, $method], $parameters);
     }
 }

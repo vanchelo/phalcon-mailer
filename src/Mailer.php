@@ -1,12 +1,20 @@
-<?php namespace Vanchelo\Mailer;
+<?php
+
+namespace Vanchelo\Mailer;
 
 use Closure;
+use Phalcon\DiInterface;
 use Swift_Mailer;
 use Swift_Message;
 use Jeremeamia\SuperClosure\SerializableClosure;
 use Phalcon\DI\InjectionAwareInterface;
 use Phalcon\Queue\Beanstalk;
 
+/**
+ * Class Mailer
+ *
+ * @package Vanchelo\Mailer
+ */
 class Mailer implements InjectionAwareInterface
 {
     /**
@@ -45,15 +53,15 @@ class Mailer implements InjectionAwareInterface
     protected $queue;
 
     /**
-     * @var \Phalcon\DiInterface
+     * @var DiInterface
      */
     protected $di;
 
     /**
      * Create a new Mailer instance
      *
-     * @param $view
-     * @param Swift_Mailer $swift
+     * @param \Phalcon\Mvc\View $view
+     * @param Swift_Mailer      $swift
      */
     public function __construct($view, Swift_Mailer $swift)
     {
@@ -76,8 +84,8 @@ class Mailer implements InjectionAwareInterface
      * Send a new message when only a plain part
      *
      * @param string $view
-     * @param array $data
-     * @param mixed $callback
+     * @param array  $data
+     * @param mixed  $callback
      *
      * @return int
      */
@@ -89,8 +97,8 @@ class Mailer implements InjectionAwareInterface
     /**
      * Send a new message using a view
      *
-     * @param string|array $view
-     * @param array $data
+     * @param string|array   $view
+     * @param array          $data
      * @param Closure|string $callback
      *
      * @return int
@@ -120,19 +128,17 @@ class Mailer implements InjectionAwareInterface
      * Add the content to a given message
      *
      * @param Message $message
-     * @param string $view
-     * @param string $plain
-     * @param array $data
+     * @param string  $view
+     * @param string  $plain
+     * @param array   $data
      */
-    protected function addContent($message, $view, $plain, $data)
+    protected function addContent(Message $message, $view, $plain, $data)
     {
-        if (isset($view))
-        {
+        if (isset($view)) {
             $message->setBody($this->render($view, $data), 'text/html');
         }
 
-        if (isset($plain))
-        {
+        if (isset($plain)) {
             $message->addPart($this->render($plain, $data), 'text/plain');
         }
     }
@@ -151,19 +157,17 @@ class Mailer implements InjectionAwareInterface
         // If the given view is an array with numeric keys, we will just assume that
         // both a "pretty" and "plain" view were provided, so we will return this
         // array as is, since must should contain both views with numeric keys.
-        if (is_array($view) && isset($view[0]))
-        {
+        if (is_array($view) && isset($view[0])) {
             return $view;
         }
 
         // If the view is an array, but doesn't contain numeric keys, we will assume
         // the the views are being explicitly specified and will extract them via
         // named keys instead, allowing the developers to use one or the other.
-        elseif (is_array($view))
-        {
+        elseif (is_array($view)) {
             return [
                 array_get($view, 'html'),
-                array_get($view, 'text')
+                array_get($view, 'text'),
             ];
         }
 
@@ -177,7 +181,7 @@ class Mailer implements InjectionAwareInterface
      *
      * @return int
      */
-    public function sendSwiftMessage($message)
+    public function sendSwiftMessage(Swift_Message $message)
     {
         return $this->swift->send($message);
     }
@@ -193,8 +197,7 @@ class Mailer implements InjectionAwareInterface
      */
     protected function callMessageBuilder($callback, $message)
     {
-        if ($callback instanceof Closure)
-        {
+        if ($callback instanceof Closure) {
             return call_user_func($callback, $message);
         }
 
@@ -213,8 +216,7 @@ class Mailer implements InjectionAwareInterface
         // If a global from address has been specified we will set it on every message
         // instances so the developer does not have to repeat themselves every time
         // they create a new message. We will just go ahead and push the address.
-        if (isset($this->from['address']))
-        {
+        if (isset($this->from['address'])) {
             $message->from($this->from['address'], $this->from['name']);
         }
 
@@ -225,7 +227,7 @@ class Mailer implements InjectionAwareInterface
      * Render the given view
      *
      * @param string $view
-     * @param array $data
+     * @param array  $data
      *
      * @return string
      */
@@ -277,7 +279,7 @@ class Mailer implements InjectionAwareInterface
      */
     protected function buildQueueCallable($callback)
     {
-        if ( ! $callback instanceof Closure) return $callback;
+        if (!$callback instanceof Closure) return $callback;
 
         return serialize(new SerializableClosure($callback));
     }
@@ -286,7 +288,7 @@ class Mailer implements InjectionAwareInterface
      * Handle a queued e-mail message job
      *
      * @param \Phalcon\Queue\Beanstalk\Job $job
-     * @param array $data
+     * @param array                        $data
      */
     public function handleQueuedMessage($job, $data)
     {
@@ -304,8 +306,7 @@ class Mailer implements InjectionAwareInterface
      */
     protected function getQueuedCallable(array $data)
     {
-        if (str_contains($data['callback'], 'SerializableClosure'))
-        {
+        if (str_contains($data['callback'], 'SerializableClosure')) {
             return with(unserialize($data['callback']))->getClosure();
         }
 
@@ -315,8 +316,8 @@ class Mailer implements InjectionAwareInterface
     /**
      * Queue a new e-mail message for sending
      *
-     * @param string|array $view
-     * @param array $data
+     * @param string|array    $view
+     * @param array           $data
      * @param \Closure|string $callback
      *
      * @return mixed
@@ -332,7 +333,7 @@ class Mailer implements InjectionAwareInterface
             'data' => [
                 'view' => $view,
                 'data' => $data,
-                'callback' => $callback
+                'callback' => $callback,
             ],
         ]));
     }
@@ -350,7 +351,7 @@ class Mailer implements InjectionAwareInterface
     /**
      * Set the Beanstalk queue instance
      *
-     * @param \Phalcon\Queue\Beanstalk  $queue
+     * @param \Phalcon\Queue\Beanstalk $queue
      *
      * @return self
      */
@@ -364,9 +365,9 @@ class Mailer implements InjectionAwareInterface
     /**
      * Sets the dependency injector
      *
-     * @param \Phalcon\DiInterface $dependencyInjector
+     * @param mixed $dependencyInjector
      */
-    public function setDI($dependencyInjector)
+    public function setDI(DiInterface $dependencyInjector)
     {
         $this->di = $dependencyInjector;
     }
@@ -374,7 +375,7 @@ class Mailer implements InjectionAwareInterface
     /**
      * Returns the internal dependency injector
      *
-     * @return \Phalcon\DiInterface
+     * @return DiInterface
      */
     public function getDI()
     {

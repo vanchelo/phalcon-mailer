@@ -19,7 +19,7 @@ composer require vanchelo/phalcon-mailer
 ```json
 {
   "require": {
-    "vanchelo/phalcon-console": "dev-master"
+    "vanchelo/phalcon-mailer": "~2.0"
   }
 }
 ```

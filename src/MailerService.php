@@ -1,11 +1,13 @@
-<?php namespace Vanchelo\Mailer;
+<?php
+
+namespace Vanchelo\Mailer;
 
 use Phalcon\Mvc\User\Component;
+use Phalcon\Mvc\View\Simple as SimpleView;
 use Swift_Mailer;
-use Swift_SmtpTransport as SmtpTransport;
 use Swift_MailTransport as MailTransport;
 use Swift_SendmailTransport as SendmailTransport;
-use Phalcon\Mvc\View\Simple as SimpleView;
+use Swift_SmtpTransport as SmtpTransport;
 
 class MailerService extends Component
 {
@@ -34,8 +36,7 @@ class MailerService extends Component
 
         $from = $this->di['config']->mail->from->toArray();
 
-        if (is_array($from) && isset($from['address']))
-        {
+        if (is_array($from) && isset($from['address'])) {
             $mailer->alwaysFrom($from['address'], $from['name']);
         }
 
@@ -56,8 +57,7 @@ class MailerService extends Component
         // Once we have the transporter registered, we will register the actual Swift
         // mailer instance, passing in the transport instances, which allows us to
         // override this transporter instances during app start-up if necessary.
-        $this->di['swift.mailer'] = function ()
-        {
+        $this->di['swift.mailer'] = function () {
             return new Swift_Mailer($this->di['swift.transport']);
         };
     }
@@ -71,8 +71,7 @@ class MailerService extends Component
      */
     protected function registerSwiftTransport($config)
     {
-        switch ($config['driver'])
-        {
+        switch ($config['driver']) {
             case 'smtp':
                 return $this->registerSmtpTransport($config);
 
@@ -96,8 +95,7 @@ class MailerService extends Component
      */
     protected function registerSmtpTransport($config)
     {
-        $this->di['swift.transport'] = function () use ($config)
-        {
+        $this->di['swift.transport'] = function () use ($config) {
             extract($config);
 
             // The Swift SMTP transport instance will allow us to use any SMTP backend
@@ -105,16 +103,14 @@ class MailerService extends Component
             // a developer has available. We will just pass this configured host.
             $transport = SmtpTransport::newInstance($host, $port);
 
-            if (isset($encryption))
-            {
+            if (isset($encryption)) {
                 $transport->setEncryption($encryption);
             }
 
             // Once we have the transport we will check for the presence of a username
             // and password. If we have it we will set the credentials on the Swift
             // transporter instance so that we'll properly authenticate delivery.
-            if (isset($username))
-            {
+            if (isset($username)) {
                 $transport->setUsername($username);
 
                 $transport->setPassword($password);
@@ -133,8 +129,7 @@ class MailerService extends Component
      */
     protected function registerSendmailTransport($config)
     {
-        $this->di['swift.transport'] = function () use ($config)
-        {
+        $this->di['swift.transport'] = function () use ($config) {
             return SendmailTransport::newInstance($config['sendmail']);
         };
     }
@@ -146,8 +141,7 @@ class MailerService extends Component
      */
     protected function registerMailTransport()
     {
-        $this->di['swift.transport'] = function ()
-        {
+        $this->di['swift.transport'] = function () {
             return MailTransport::newInstance();
         };
     }
@@ -157,17 +151,12 @@ class MailerService extends Component
      */
     protected function registerView()
     {
-        if ($this->di->has('view'))
-        {
-            $this->di['mailer.view'] = function ()
-            {
+        if ($this->di->has('view')) {
+            $this->di['mailer.view'] = function () {
                 return $this->di->get('view');
             };
-        }
-        else
-        {
-            $this->di['mailer.view'] = function ()
-            {
+        } else {
+            $this->di['mailer.view'] = function () {
                 $view = new SimpleView;
 
                 $view->setViewsDir($this->config->application->viewsDir);
@@ -188,8 +177,7 @@ class MailerService extends Component
     {
         $mailer->setDI($this->di);
 
-        if ($this->di->has('queue'))
-        {
+        if ($this->di->has('queue')) {
             $mailer->setQueue($this->di['queue']);
         }
     }

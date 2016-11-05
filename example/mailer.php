@@ -1,8 +1,9 @@
 #!/usr/bin/env php
 <?php
+
+use Phalcon\DI;
 use Phalcon\Queue\Beanstalk;
 use Phalcon\Queue\Beanstalk\Job;
-use Phalcon\DI;
 use Vanchelo\Mailer\MailerService;
 
 // Подключаем конфиг приложения (исправить на свой)
@@ -18,22 +19,19 @@ $di['queue'] = $queue;
 /**
  * Register Mailer Service
  */
-$di['mailer'] = function ()
-{
+$di['mailer'] = function () {
     $service = new MailerService();
 
     return $service->mailer();
 };
 
 /** @var Job $job */
-while (($job = $queue->peekReady()) !== false)
-{
+while (($job = $queue->peekReady()) !== false) {
     $data = json_decode($job->getBody(), true);
 
     $segments = explode(':', $data['job']);
 
-    if (count($segments) !== 2)
-    {
+    if (count($segments) !== 2) {
         continue;
     }
 

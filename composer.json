@@ -4,7 +4,7 @@
     "description": "Phalcon Mailer Service",
     "keywords": ["mail","mailer","phalcon"],
     "homepage": "https://github.com/vanchelo/phalcon-mailer",
-    "license": "GPLv2",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Brezhnev Ivan"

@@ -62,7 +62,7 @@ $this->di['mailer'] = function() {
         'username'   => 'no-reply@my-domain.com',
         'password'   => 'some-strong-password',
         'sendmail'   => '/usr/sbin/sendmail -bs',
-        // Путь используемый для поиска шаблонов писем
+        // The path used to find email templates
         'viewsDir'   => __DIR__ . '/../app/views/', // optional
     ]);
     return $service->mailer();
@@ -75,7 +75,7 @@ Example for a controller, but will work not only in controllers
 
 ```php
 $this->mailer->send('emails/xxx', [
-    'test' => 'test' // Переменные для передачи в шаблон
+    'test' => 'test' // Template variables
 ], function($message) {
     $message->to('some_email@email.com');
     $message->subject('Test Email');
@@ -103,7 +103,7 @@ return new \Phalcon\Config([
         'username'   => 'no-reply@my-domain.com',
         'password'   => 'some-strong-password',
         'sendmail'   => '/usr/sbin/sendmail -bs',
-        // Путь используемый для поиска шаблонов писем
+        // The path used to find email templates
         'viewsDir'   => __DIR__ . '/../app/views/', // optional
     ],
 ]);
@@ -131,7 +131,7 @@ Example of delayed mail sending
 
 ```php
 $this->mailer->queue('emails/xxx', [
-    'test' => 'test' // Переменные для передачи в шаблон
+    'test' => 'test' // Template variables
 ], function($message) {
     $message->to('some_email@email.com');
     $message->subject('Test Email');

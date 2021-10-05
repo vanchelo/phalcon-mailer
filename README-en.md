@@ -1,3 +1,6 @@
+**english** | [русский](./README.md)
+- - -
+
 Phalcon Mailer
 ==============
 Convenient library for sending your mail to [Phalcon 2.0](http://phalconphp.com/).
